@@ -17,6 +17,13 @@
     <nav>
         <a th:href="@{/mainscreen}" class="btn btn-link">Home</a>
         <a th:href="@{/about}" class="btn btn-link">About Us</a>
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <p th:text="${successMessage}"></p>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <p th:text="${errorMessage}"></p>
+        </div>
     </nav>
     <hr>
     <h2>Parts</h2>
@@ -81,6 +88,7 @@
             <td th:text="${tempProduct.price}">1</td>
             <td th:text="${tempProduct.inv}">1</td>
             <td><a th:href="@{/showProductFormForUpdate(productID=${tempProduct.id})}" class="btn btn-primary btn-sm mb-3">Update</a>
+                <a th:href="@{/buyProduct(productID=${tempProduct.id})}" class="btn btn-primary btn-sm mb-3">Buy Now</a>
                 <a th:href="@{/deleteproduct(productID=${tempProduct.id})}" class="btn btn-primary btn-sm mb-3"
                    onclick="if(!(confirm('Are you sure you want to delete this product?')))return false">Delete</a>
             </td>
