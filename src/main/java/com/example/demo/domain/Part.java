@@ -24,16 +24,16 @@ public abstract class Part implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     long id;
     String name;
-    @Min(value = 0, message = "Price value must be positive")
+    @Min(value = 0, message = "Price value must be positive.")
     double price;
-    @Min(value = 0, message = "Inventory value must be positive")
+    @Min(value = 0, message = "Inventory value must be positive.")
     int inv;
 
-    @Min(value = 0, message = "Minimum inventory value must be positive")
+    @Min(value = 0, message = "Minimum inventory value must be positive.")
     @Column(name = "min_inventory") // Define the corresponding column name in the database
     private int minInventory;
 
-    @Min(value = 0, message = "Maximum inventory value must be positive")
+    @Min(value = 0, message = "Maximum inventory value must be positive.")
     @Column(name = "max_inventory") // Define the corresponding column name in the database
     private int maxInventory;
 
@@ -61,7 +61,7 @@ public abstract class Part implements Serializable {
     public int getMinInventory() {
         return minInventory;
     }
-    public void setMinInventory(int minInventory) {
+    public void setMin(int minInventory) {
         this.minInventory = minInventory;
     }
 
@@ -69,7 +69,7 @@ public abstract class Part implements Serializable {
         return maxInventory;
     }
 
-    public void setMaxInventory(int maxInventory) {
+    public void setMax(int maxInventory) {
         this.maxInventory = maxInventory;
     }
 

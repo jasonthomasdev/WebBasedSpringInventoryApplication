@@ -53,41 +53,45 @@ public class AddProductController {
     public String submitForm(@Valid @ModelAttribute("product") Product product, BindingResult bindingResult, Model theModel) {
         theModel.addAttribute("product", product);
 
-        if(bindingResult.hasErrors()){
-            ProductService productService = context.getBean(ProductServiceImpl.class);
-            Product product2=productService.findById((int)product.getId());
-            theModel.addAttribute("parts", partService.findAll());
-            List<Part>availParts=new ArrayList<>();
-            for(Part p: partService.findAll()){
-                if(!product2.getParts().contains(p))availParts.add(p);
-            }
-            theModel.addAttribute("availparts",availParts);
-            theModel.addAttribute("assparts",product2.getParts());
-            return "productForm";
-        }
- //       theModel.addAttribute("assparts", assparts);
- //       this.product=product;
-//        product.getParts().addAll(assparts);
-        else {
-            ProductService repo = context.getBean(ProductServiceImpl.class);
-            if(product.getId()!=0) {
-                Product product2 = repo.findById((int) product.getId());
-                PartService partService1 = context.getBean(PartServiceImpl.class);
-                if(product.getInv()- product2.getInv()>0) {
-                    for (Part p : product2.getParts()) {
-                        int inv = p.getInv();
-                        p.setInv(inv - (product.getInv() - product2.getInv()));
-                        partService1.save(p);
+        ProductService repo = context.getBean(ProductServiceImpl.class);
+        PartService partService1 = context.getBean(PartServiceImpl.class);
+
+        if (product.getId() != 0) {
+            Product existingProduct = repo.findById((int) product.getId());
+            int inventoryIncrease = product.getInv() - existingProduct.getInv();
+            if (inventoryIncrease > 0) {
+                for (Part p : existingProduct.getParts()) {
+                    int newInv = p.getInv() - inventoryIncrease;
+                    if (newInv < p.getMinInventory()) {
+                        // Add an error message to the BindingResult
+                        bindingResult.rejectValue("inv", "error.product", "Alert - Increasing the product inventory has caused part " + p.getId() + " inventory to go below minimum.");
                     }
+                    // Decrement the part inventory and save the part regardless
+                    p.setInv(newInv);
+                    partService1.save(p);
                 }
             }
-            else{
-                product.setInv(0);
+        } else {
+            product.setInv(0);
+        }
+
+        if (bindingResult.hasErrors()) {
+            theModel.addAttribute("parts", partService.findAll());
+            List<Part> availParts = new ArrayList<>();
+            for (Part p : partService.findAll()) {
+                if (!product.getParts().contains(p)) availParts.add(p);
             }
+            theModel.addAttribute("availparts", availParts);
+            theModel.addAttribute("assparts", product.getParts());
+            return "productForm";
+        } else {
             repo.save(product);
             return "confirmationaddproduct";
         }
     }
+
+
+
 
     @GetMapping("/showProductFormForUpdate")
     public String showProductFormForUpdate(@RequestParam("productID") int theId, Model theModel) {

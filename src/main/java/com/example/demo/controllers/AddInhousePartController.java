@@ -4,8 +4,6 @@ import com.example.demo.domain.InhousePart;
 import com.example.demo.domain.Part;
 import com.example.demo.service.InhousePartService;
 import com.example.demo.service.InhousePartServiceImpl;
-import com.example.demo.service.PartService;
-import com.example.demo.service.PartServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -14,16 +12,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 
-/**
- *
- *
- *
- *
- */
 @Controller
 public class AddInhousePartController {
     @Autowired
@@ -37,23 +28,38 @@ public class AddInhousePartController {
     }
 
     @PostMapping("/showFormAddInPart")
-    public String submitForm(@Valid @ModelAttribute("inhousepart") InhousePart part, BindingResult theBindingResult, Model theModel) {
+    public String submitForm(@Valid @ModelAttribute("inhousepart") InhousePart part, BindingResult bindingResult, Model theModel) {
         theModel.addAttribute("inhousepart", part);
 
-        // Check if the inventory is within the minimum and maximum limits
-        if (part.getInv() < part.getMinInventory() || part.getInv() > part.getMaxInventory()) {
-            theBindingResult.rejectValue("inv", "error.inhousepart", "Inventory must be between minimum and maximum values.");
+        // Custom validation for inventory
+        if (part.getInv() < 0) {
+            bindingResult.rejectValue("inv", "error.inhousepart", "Inventory must be 0 or greater.");
+        } else if (part.getInv() < part.getMin()) {
+            bindingResult.rejectValue("inv", "error.inhousepart", "Alert - Inventory is less than the Inventory Minimum. \r\nValue is saved. Click Link to Main Screen to return.");
+        } else if (part.getInv() > part.getMax()) {
+            bindingResult.rejectValue("inv", "error.inhousepart", "Alert - Inventory is greater than the Inventory Maximum. \n\nValue is saved. Click Link to Main Screen to return.");
         }
 
-        if (theBindingResult.hasErrors()) {
-            return "InhousePartForm";
-        } else {
-            InhousePartService repo = context.getBean(InhousePartServiceImpl.class);
-            InhousePart ip = repo.findById((int) part.getId());
-            if (ip != null) part.setProducts(ip.getProducts());
-            repo.save(part);
+        if (part.getMin() < 0) {
+            bindingResult.rejectValue("min", "error.inhousepart", "Minimum Inventory must be 0 or greater.");
+        }
 
-            return "confirmationaddpart";
+        if (part.getMax() < 0) {
+            bindingResult.rejectValue("max", "error.inhousepart", "Maximum Inventory must be 0 or greater.");
+        }
+
+        // Proceed with saving the part regardless of the inventory validation errors
+        InhousePartService repo = context.getBean(InhousePartServiceImpl.class);
+        InhousePart ip = repo.findById((int) part.getId());
+        if (ip != null) part.setProducts(ip.getProducts());
+        repo.save(part);
+
+        // Check if there are any errors (including other validation errors)
+        // If there are errors, return to the form view, otherwise, redirect to the confirmation view
+        if (bindingResult.hasErrors()) {
+            return "InhousePartForm"; // Return to the form view with error messages
+        } else {
+            return "confirmationaddpart"; // Redirect to the confirmation view
         }
     }
 }

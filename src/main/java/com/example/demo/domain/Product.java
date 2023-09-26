@@ -24,9 +24,9 @@ public class Product implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     long id;
     String name;
-    @Min(value = 0, message = "Price value must be positive")
+    @Min(value = 0, message = "Price value must be positive.")
     double price;
-    @Min(value = 0, message = "Inventory value must be positive")
+    @Min(value = 0, message = "Inventory value must be positive.")
     int inv;
     @ManyToMany(cascade=CascadeType.ALL, mappedBy = "products")
     Set<Part> parts= new HashSet<>();
