@@ -102,6 +102,42 @@ class PartTest {
     }
 
     @Test
+    void getMinInventory() {
+        int minInventory = 10;
+        partIn.setMin(minInventory);
+        assertEquals(minInventory, partIn.getMinInventory());
+        partOut.setMin(minInventory);
+        assertEquals(minInventory, partOut.getMinInventory());
+    }
+
+    @Test
+    void setMinInventory() {
+        int minInventory = 10;
+        partIn.setMin(minInventory);
+        assertEquals(minInventory, partIn.getMinInventory());
+        partOut.setMin(minInventory);
+        assertEquals(minInventory, partOut.getMinInventory());
+    }
+
+    @Test
+    void getMaxInventory() {
+        int maxInventory = 20;
+        partIn.setMax(maxInventory);
+        assertEquals(maxInventory, partIn.getMaxInventory());
+        partOut.setMax(maxInventory);
+        assertEquals(maxInventory, partOut.getMaxInventory());
+    }
+
+    @Test
+    void setMaxInventory() {
+        int maxInventory = 20;
+        partIn.setMax(maxInventory);
+        assertEquals(maxInventory, partIn.getMaxInventory());
+        partOut.setMax(maxInventory);
+        assertEquals(maxInventory, partOut.getMaxInventory());
+    }
+
+    @Test
     void getProducts() {
         Product product1= new Product();
         Product product2= new Product();
