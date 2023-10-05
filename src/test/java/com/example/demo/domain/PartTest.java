@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -155,5 +156,41 @@ class PartTest {
         partIn.setId(1l);
         partOut.setId(1l);
         assertEquals(partIn.hashCode(),partOut.hashCode());
+    }
+
+    @Test
+    void testInventoryBelowMinimum() {
+        int minInventory = 5;
+        int inv = 4; // One less than the minimum
+
+        partIn.setMinInventory(minInventory);
+        partIn.setInv(inv);
+
+        // Assert that the inventory is not less than the minimum
+        assertEquals(Math.max(inv, minInventory), partIn.getInv(), "Inventory should not be less than the minimum inventory");
+
+        partOut.setMinInventory(minInventory);
+        partOut.setInv(inv);
+
+        // Assert that the inventory is not less than the minimum
+        assertEquals(Math.max(inv, minInventory), partOut.getInv(), "Inventory should not be less than the minimum inventory");
+    }
+
+    @Test
+    void testInventoryAboveMaximum() {
+        int maxInventory = 10;
+        int inv = 11; // One more than the maximum
+
+        partIn.setMaxInventory(maxInventory);
+        partIn.setInv(inv);
+
+        // Assert that the inventory is not more than the maximum
+        assertEquals(Math.min(inv, maxInventory), partIn.getInv(), "Inventory should not be more than the maximum inventory");
+
+        partOut.setMaxInventory(maxInventory);
+        partOut.setInv(inv);
+
+        // Assert that the inventory is not more than the maximum
+        assertEquals(Math.min(inv, maxInventory), partOut.getInv(), "Inventory should not be more than the maximum inventory");
     }
 }

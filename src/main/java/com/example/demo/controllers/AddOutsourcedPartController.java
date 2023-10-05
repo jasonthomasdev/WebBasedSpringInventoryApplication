@@ -44,7 +44,7 @@ public class AddOutsourcedPartController {
         if (part.getInv() < part.getMinInventory() || part.getInv() > part.getMaxInventory()) {
             bindingResult.rejectValue("inv", "error.outsourcedpart", "Inventory must be between minimum and maximum values.");
         }
-
+        System.out.println(part.getMinInventory());
 
         if(bindingResult.hasErrors()){
             return "OutsourcedPartForm";

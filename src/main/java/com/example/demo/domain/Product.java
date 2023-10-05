@@ -30,6 +30,8 @@ public class Product implements Serializable {
     int inv;
     @ManyToMany(cascade=CascadeType.ALL, mappedBy = "products")
     Set<Part> parts= new HashSet<>();
+    @ManyToMany(cascade=CascadeType.ALL, mappedBy = "parts")
+    Set<Product> products= new HashSet<>();
 
     public Product() {
     }
@@ -51,6 +53,23 @@ public class Product implements Serializable {
         return id;
     }
 
+    public void addPart(InhousePart part){
+        this.parts.add(part);
+        part.getProducts().add(this);
+    }
+
+    public void addPart(OutsourcedPart part){
+        this.parts.add(part);
+        part.getProducts().add(this);
+    }
+    /*
+    ORIGINAL METHOD
+
+    public void addPart(Part part) {
+        this.parts.add(part);
+        part.getProducts().add(this);
+    }
+*/
     public void setId(long id) {
         this.id = id;
     }

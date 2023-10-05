@@ -17,6 +17,15 @@ String companyName;
     public OutsourcedPart() {
     }
 
+    public OutsourcedPart(String name, double price, int inv, int minInventory, int maxInventory, String companyName) {
+        super(name, price, inv, minInventory, maxInventory);
+        //this.minInventory = minInventory;
+        //this.maxInventory = maxInventory;
+        this.setCompanyName(companyName);
+        this.setMinInventory(minInventory);
+        this.setMaxInventory(maxInventory);
+    }
+
     public String getCompanyName() {
         return companyName;
     }

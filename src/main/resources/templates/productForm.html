@@ -19,11 +19,19 @@
     <p><input type="text" th:field="*{price}" placeholder= "Price" class="form-control mb-4 col-4"/></p>
 
 
-    <p><input type="text" th:field="*{inv}" placeholder="Inventory" class="form-control mb-4 col-4"/></p>
-
+    <p><input type="text" th:field="*{inv}" placeholder="Inventory" class="form-control mb-4 col-4"/></p>\
+    <!--
+    <p><input type="text" th:field="*{minInventory}" placeholder="Minimum Inventory" class="form-control mb-4 col-4"/></p>
+    <p><input type="text" th:field="*{maxInventory}" placeholder="Maximum Inventory" class="form-control mb-4 col-4"/></p>
+    -->
+    <!--
     <p>
     <div th:if="${#fields.hasAnyErrors()}">
     <ul><li th:each="err: ${#fields.allErrors()}" th:text="${err}"></li></ul>
+    </div>
+    -->
+    <div th:if="${#fields.hasErrors('inv')}">
+        <ul><li th:each="err: ${#fields.errors('inv')}" th:text="${err}"></li></ul>
     </div>
     </p>
     <p><input type="submit" value="Submit" /></p>

@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,16 @@ public class AddProductController {
     @PostMapping("/showFormAddProduct")
     public String submitForm(@Valid @ModelAttribute("product") Product product, BindingResult bindingResult, Model theModel) {
         theModel.addAttribute("product", product);
-
+        for (Part p : product.getParts()) {
+            if (p.getInv() < p.getMinInventory()) {
+                bindingResult.rejectValue("inv", "error.product", "One of the associated parts has inventory below its minimum.");
+                break;
+            }
+            if (p.getInv() > p.getMaxInventory()) {
+                bindingResult.rejectValue("inv", "error.product", "One of the associated parts has inventory above its maximum.");
+                break;
+            }
+        }
         if(bindingResult.hasErrors()){
             ProductService productService = context.getBean(ProductServiceImpl.class);
             Product product2=productService.findById((int)product.getId());
@@ -70,22 +80,33 @@ public class AddProductController {
 //        product.getParts().addAll(assparts);
         else {
             ProductService repo = context.getBean(ProductServiceImpl.class);
-            if(product.getId()!=0) {
+            if(product.getId() != 0) {
                 Product product2 = repo.findById((int) product.getId());
                 PartService partService1 = context.getBean(PartServiceImpl.class);
-                if(product.getInv()- product2.getInv()>0) {
+                int inventoryDifference = product.getInv() - product2.getInv();
+                if(inventoryDifference > 0) {
                     for (Part p : product2.getParts()) {
-                        int inv = p.getInv();
-                        p.setInv(inv - (product.getInv() - product2.getInv()));
+                        int newInventory = p.getInv() - inventoryDifference;
+                        if (newInventory < p.getMinInventory() || newInventory > p.getMaxInventory()) {
+                            bindingResult.rejectValue("inv", "error.product", "Adjusting the product's inventory would cause a part's inventory to go out of bounds.");
+                            setupModelForProductForm(theModel, product);
+                            return "productForm";
+                        }
+                        p.setInv(newInventory);
                         partService1.save(p);
                     }
                 }
-            }
-            else{
+            } else {
                 product.setInv(0);
             }
-            repo.save(product);
-            return "confirmationaddproduct";
+            try {
+                repo.save(product);
+                return "confirmationaddproduct";
+            } catch (ConstraintViolationException e) {
+                bindingResult.rejectValue("inv", "error.product", "One of the associated parts has inventory outside its allowed range.");
+                setupModelForProductForm(theModel, product);
+                return "productForm";
+            }
         }
     }
 
@@ -185,4 +206,22 @@ public class AddProductController {
 
         return "redirect:/mainscreen";
     }
+
+    private void setupModelForProductForm(Model theModel, Product product) {
+        ProductService productService = context.getBean(ProductServiceImpl.class);
+        Product product2 = productService.findById((int) product.getId());
+
+        theModel.addAttribute("parts", partService.findAll());
+
+        List<Part> availParts = new ArrayList<>();
+        for (Part p : partService.findAll()) {
+            if (!product2.getParts().contains(p)) {
+                availParts.add(p);
+            }
+        }
+
+        theModel.addAttribute("availparts", availParts);
+        theModel.addAttribute("assparts", product2.getParts());
+    }
+
 }
